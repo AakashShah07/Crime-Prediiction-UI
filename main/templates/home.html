@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Crime Prediction System Dashboard">
+    <meta name="keywords" content="crime prediction, analytics, dashboard, security">
+    <meta name="author" content="Crime Prevention Team">
+    <title>Crime Prediction System - Advanced Analytics Dashboard</title>
+
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-blue': '#1a237e',
+                        'accent-yellow': '#ffd700',
+                        'dark-gray': '#121212',
+                        'card-bg': '#1e1e1e',
+                        'hover-gray': '#2d2d2d'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <style>
+        /* Base Styles */
+        body { 
+            background-color: #121212;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffed4a;
+        }
+
+        /* Input Focus Styles */
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #ffd700;
+        }
+
+        /* Chart Tooltip Customization */
+        .chartjs-tooltip {
+            background: rgba(30, 30, 30, 0.9) !important;
+            border: 1px solid #ffd700 !important;
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen">
+    <!-- Mobile Menu Button (visible on small screens) -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-button" class="text-accent-yellow p-2 hover:bg-gray-800 rounded">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar" class="fixed h-full w-64 bg-gray-900 p-6 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+        <!-- Logo and Brand -->
+        <div class="mb-8 flex items-center space-x-3">
+            <i class="fas fa-shield-alt text-accent-yellow text-2xl"></i>
+            <h1 class="text-2xl font-bold text-accent-yellow">Crime Prediction</h1>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-4">
+            <a href="#" class="flex items-center py-3 px-4 rounded hover:bg-gray-800 transition-colors group">
+                <i class="fas fa-home mr-3 text-accent-yellow group-hover:scale-110 transition-transform"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            
+            <!-- Crime Analysis Dropdown -->
+            <div class="relative">
+                <button id="crime-analysis-btn" class="w-full flex items-center justify-between py-3 px-4 rounded hover:bg-gray-800 transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-line mr-3 text-accent-yellow group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium">Crime Analysis</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-accent-yellow transform transition-transform duration-200"></i>
+                </button>
+                
+                <!-- Submenu -->
+                <div id="crime-analysis-submenu" class="hidden pl-4 mt-2 space-y-2">
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-female mr-2 text-accent-yellow"></i>
+                        Rape Case 
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-ring mr-2 text-accent-yellow"></i>
+                        Dowry Death 
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-traffic-light mr-2 text-accent-yellow"></i>
+                        Women Trafficking 
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-hand-holding-usd mr-2 text-accent-yellow"></i>
+                        Domestic Violence 
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-child mr-2 text-accent-yellow"></i>
+                        Child Abuse 
+                    </a>
+                </div>
+            </div>
+
+            <a href="#" class="flex items-center py-3 px-4 rounded hover:bg-gray-800 transition-colors group">
+                <i class="fas fa-map-marked-alt mr-3 text-accent-yellow group-hover:scale-110 transition-transform"></i>
+                <span class="font-medium">Crime Map</span>
+            </a>
+            <a href="#" class="flex items-center py-3 px-4 rounded hover:bg-gray-800 transition-colors group">
+                <i class="fas fa-file-alt mr-3 text-accent-yellow group-hover:scale-110 transition-transform"></i>
+                <span class="font-medium">Reports</span>
+            </a>
+            <a href="#" class="flex items-center py-3 px-4 rounded hover:bg-gray-800 transition-colors group">
+                <i class="fas fa-cog mr-3 text-accent-yellow group-hover:scale-110 transition-transform"></i>
+                <span class="font-medium">Settings</span>
+            </a>
+        </nav>
+
+       
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="lg:ml-64 p-8">
+        <!-- Header Section -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-accent-yellow mb-2">Crime Prediction System</h1>
+                    <p class="text-gray-400 text-lg">Advanced analytics for proactive crime prevention</p>
+                </div>
+                
+            </div>
+        </header>
+
+        <!-- Quick Stats Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 mb-1">Total Predictions</p>
+                        <h3 class="text-2xl font-bold">1,234</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-accent-yellow bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chart-line text-accent-yellow text-xl"></i>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 mb-1">Accuracy Rate</p>
+                        <h3 class="text-2xl font-bold">89.7%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-bullseye text-green-500 text-xl"></i>
+                    </div>
+                </div>
+               
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 mb-1">States Monitored</p>
+                        <h3 class="text-2xl font-bold">156</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-map-marked-alt text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+
+      
+          
+        <!-- Prediction Form Section -->
+     <!-- Prediction Form Section -->
+<div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Predict Crime</h2>
+        <button class="text-accent-yellow hover:text-yellow-400 transition-colors" title="Help">
+            <i class="fas fa-question-circle text-xl"></i>
+        </button>
+    </div>
+
+    <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+        
+        <!-- Location Input -->
+        <div class="space-y-2">
+            <label class="flex items-center text-gray-300">
+                <i class="fas fa-map-marker-alt mr-2 text-accent-yellow"></i>
+                Location
+            </label>
+            <div class="relative">
+                <select name="state"
+                    class="w-full bg-gray-700 rounded px-4 py-2 pl-10 focus:ring-2 focus:ring-accent-yellow transition-shadow appearance-none"
+                    required>
+                    <option value="" disabled selected>Select a state</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Chhattisgarh">Chhattisgarh</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jharkhand">Jharkhand</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Manipur">Manipur</option>
+                    <option value="Meghalaya">Meghalaya</option>
+                    <option value="Mizoram">Mizoram</option>
+                    <option value="Nagaland">Nagaland</option>
+                    <option value="Odisha">Odisha</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Sikkim">Sikkim</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Telangana">Telangana</option>
+                    <option value="Tripura">Tripura</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
+            </div>
+            <p class="text-sm text-gray-400">Enter a state name</p>
+        </div>
+
+        <!-- Year Input -->
+       
+
+        <!-- Submit Button -->
+        <div class="md:col-span-2 mt-4 flex items-center space-x-4">
+            <button type="submit"
+                class="bg-accent-yellow text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-yellow-400 transition-colors flex items-center">
+                <i class="fas fa-chart-pie mr-2"></i>
+                Predict Crime
+            </button>
+        </div>
+
+        <!-- Prediction Output -->
+        {% if prediction %}
+            <div class="md:col-span-2 mt-6 text-white text-lg">
+                <strong>Predicted Total Crimes:</strong> {{ prediction }}
+            </div>
+
+        
+        {% endif %}
+
+    </form>
+</div>
+
+
+        <!-- Results Grid -->
+        
+
+        <!-- Footer -->
+       
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const sidebar = document.getElementById('sidebar');
+        const crimeAnalysisBtn = document.getElementById('crime-analysis-btn');
+        const crimeAnalysisSubmenu = document.getElementById('crime-analysis-submenu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Crime Analysis Dropdown Toggle
+        crimeAnalysisBtn.addEventListener('click', () => {
+            crimeAnalysisSubmenu.classList.toggle('hidden');
+            const chevron = crimeAnalysisBtn.querySelector('.fa-chevron-down');
+            chevron.classList.toggle('rotate-180');
+        });
+
+        // Bar Chart Configuration
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Downtown', 'Suburb A', 'Suburb B', 'Industrial', 'Park'],
+                datasets: [{
+                    label: 'Crime Frequency',
+                    data: [65, 45, 35, 28, 20],
+                    backgroundColor: '#ffd700',
+                    borderRadius: 6,
+                    barThickness: 20,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        borderColor: '#ffd700',
+                        borderWidth: 1,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#fff',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#fff',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Donut Chart Configuration
+        const donutCtx = document.getElementById('donutChart').getContext('2d');
+        new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Morning', 'Afternoon', 'Evening', 'Night'],
+                datasets: [{
+                    data: [30, 25, 20, 25],
+                    backgroundColor: [
+                        '#ffd700',
+                        '#ffed4a',
+                        '#ffc107',
+                        '#ff9800'
+                    ],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#fff',
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        borderColor: '#ffd700',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
